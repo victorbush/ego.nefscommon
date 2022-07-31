@@ -24,6 +24,12 @@ public sealed class InjectionDatabaseService : IInjectionDatabaseService
 	private readonly ILogger<InjectionDatabaseService> logger;
 	private readonly InjectionDatabaseServiceSettings settings;
 
+	private static readonly JsonSerializerOptions JsonSerializerOptions = new JsonSerializerOptions
+	{
+		AllowTrailingCommas = true,
+		PropertyNameCaseInsensitive = true,
+	};
+
 	public InjectionDatabaseService(
 		ILogger<InjectionDatabaseService> logger,
 		IFileDownloader fileDownloader,
@@ -50,7 +56,7 @@ public sealed class InjectionDatabaseService : IInjectionDatabaseService
 			return null;
 		}
 
-		var latestVersion = JsonSerializer.Deserialize<InjectionDatabaseVersion>(latestVersionFileDownload.FileContent);
+		var latestVersion = JsonSerializer.Deserialize<InjectionDatabaseVersion>(latestVersionFileDownload.FileContent, JsonSerializerOptions);
 		if (latestVersion?.DbVersion is null || latestVersion?.ApiVersion is null)
 		{
 			this.logger.LogError("Failed to read latest version file.");
@@ -96,7 +102,7 @@ public sealed class InjectionDatabaseService : IInjectionDatabaseService
 		}
 
 		var fileContent = await this.fileSystem.File.ReadAllTextAsync(profilePath, cancellationToken);
-		return JsonSerializer.Deserialize<ExecutableProfile>(fileContent, new JsonSerializerOptions { AllowTrailingCommas = true, PropertyNameCaseInsensitive = true });
+		return JsonSerializer.Deserialize<ExecutableProfile>(fileContent, JsonSerializerOptions);
 	}
 
 	public async Task UpdateDatabaseAsync(InjectionDatabaseVersion targetVersion, CancellationToken cancellationToken = default)
@@ -140,6 +146,6 @@ public sealed class InjectionDatabaseService : IInjectionDatabaseService
 		}
 
 		var versionFileText = await this.fileSystem.File.ReadAllTextAsync(CurrentVersionFilePath, cancellationToken);
-		return JsonSerializer.Deserialize<InjectionDatabaseVersion>(versionFileText);
+		return JsonSerializer.Deserialize<InjectionDatabaseVersion>(versionFileText, JsonSerializerOptions);
 	}
 }
