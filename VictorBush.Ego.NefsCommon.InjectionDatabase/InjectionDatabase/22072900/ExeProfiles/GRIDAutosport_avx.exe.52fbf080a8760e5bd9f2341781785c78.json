@@ -1,0 +1,17 @@
+{
+    "md5": "52fbf080a8760e5bd9f2341781785c78",
+    "game": "grid-autosport",
+    "archives": [
+        {
+            "dataFile": "game.dat",
+            "primaryOffset": 13022544,
+            "primarySize": 66560,
+            "secondaryOffset": 14736896,
+            "secondarySize": 7680,
+            "rvaOfPrimarySizeToUpdate": 13094736,
+            "rvaOfSecondarySizeToUpdate": 13094740,
+            "rvaOfInstructionForPrimary": 2687041,
+            "rvaOfInstructionForSecondary": 2687035
+        }
+    ]
+}
