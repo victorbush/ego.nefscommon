@@ -14,6 +14,11 @@ public static class ZipUtility
 
 		foreach (var entry in zipArchive.Entries)
 		{
+			if (entry.FullName.EndsWith('/'))
+			{
+				continue;
+			}
+
 			var filePath = Path.Combine(outputDirectory, entry.FullName);
 			var dir = Path.GetDirectoryName(filePath);
 			if (!fs.Directory.Exists(dir))
