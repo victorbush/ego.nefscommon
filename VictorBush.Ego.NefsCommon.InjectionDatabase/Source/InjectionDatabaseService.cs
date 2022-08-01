@@ -16,6 +16,7 @@ public sealed class InjectionDatabaseService : IInjectionDatabaseService
 
 	private string GetDatabaseDirectory(uint version) => Path.Combine(RootDatabaseDirectory, version.ToString());
 	private string GetDatabaseVersionFilePath(uint version) => Path.Combine(GetDatabaseDirectory(version), "version.json");
+	private string GetCustomExeProfileFilePath(uint dbVersion, string exeName, string md5) => Path.Combine(GetDatabaseDirectory(dbVersion), "CustomExeProfiles", $"{exeName}.{md5}.json");
 	private string GetExeProfileFilePath(uint dbVersion, string exeName, string md5) => Path.Combine(GetDatabaseDirectory(dbVersion), "ExeProfiles", $"{exeName}.{md5}.json");
 	private string GetRemoteDatabaseZipUrl(uint version) => this.settings.SourceServerDbPath.Trim('/') + "/" + version.ToString() + ".zip";
 
@@ -26,7 +27,10 @@ public sealed class InjectionDatabaseService : IInjectionDatabaseService
 
 	private static readonly JsonSerializerOptions JsonSerializerOptions = new JsonSerializerOptions
 	{
-		AllowTrailingCommas = true,
+		// cpp implementation doesn't allow trailling commas
+		AllowTrailingCommas = false,
+
+		// TODO : ??
 		PropertyNameCaseInsensitive = true,
 	};
 
@@ -94,11 +98,16 @@ public sealed class InjectionDatabaseService : IInjectionDatabaseService
 			return null;
 		}
 
-		var profilePath = GetExeProfileFilePath(currentDatabaseVersion.DbVersion.Value, fileName, md5);
+		// Check for a custom override first
+		var profilePath = GetCustomExeProfileFilePath(currentDatabaseVersion.DbVersion.Value, fileName, md5);
 		if (!this.fileSystem.File.Exists(profilePath))
 		{
-			this.logger.LogDebug("Exe profile not found: " + profilePath);
-			return null;
+			profilePath = GetExeProfileFilePath(currentDatabaseVersion.DbVersion.Value, fileName, md5);
+			if (!this.fileSystem.File.Exists(profilePath))
+			{
+				this.logger.LogDebug("Exe profile not found: " + profilePath);
+				return null;
+			}
 		}
 
 		var fileContent = await this.fileSystem.File.ReadAllTextAsync(profilePath, cancellationToken);
