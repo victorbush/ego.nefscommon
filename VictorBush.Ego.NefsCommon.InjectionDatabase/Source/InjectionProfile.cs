@@ -9,4 +9,9 @@ public class InjectionProfile
 	public ulong? PrimarySize { get; init; }
 	public ulong? SecondaryOffset { get; init; }
 	public ulong? SecondarySize { get; init; }
+
+	public ulong? RvaOfPrimarySizeToUpdate { get; init; }
+	public ulong? RvaOfSecondarySizeToUpdate { get; init; }
+	public ulong? RvaOfInstructionForPrimary { get; init; }
+	public ulong? RvaOfInstructionForSecondary { get; init; }
 }
